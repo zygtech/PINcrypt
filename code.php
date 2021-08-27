@@ -1,12 +1,15 @@
 <?php
 	require_once('config.php');
-	if (substr($_FILES['file']['name'],-4)=='.pin') {
+	$fails = substr_count(file_get_contents('Banned.db'),hash_file('sha256',$_FILES['file']['tmp_name']));
+	if (substr($_FILES['file']['name'],-4)=='.pin' && $fails<6) {
 		$zip = new ZipArchive();
 		$zip_status = $zip->open($_FILES['file']['tmp_name']);
 		if ($zip_status === true) {
 			if ($zip->setPassword(hash('sha256',$_POST['pin'] . $secret))) {
-				if (!$zip->extractTo(__DIR__))
-					die("Extraction failed (wrong password?)");
+				if (!$zip->extractTo(__DIR__)) {
+					file_put_contents('Banned.db',hash_file('sha256',$_FILES['file']['tmp_name']) . "\n",FILE_APPEND);
+					die("Extraction failed (wrong password?). Attempts left: " . strval(5 - $fails));
+				}
 				$filename = $zip->getNameIndex(0);
 			}
 			$zip->close();
@@ -19,7 +22,7 @@
 		header('Pragma: public');
 		echo file_get_contents($filename);	
 		unlink($filename);
-	} else {
+	} elseif ($fails<6) {
 		$zip = new ZipArchive;
 		$res = $zip->open($_FILES['file']['name'] . '.zip', ZipArchive::CREATE);
 		if ($res === TRUE) {
@@ -35,5 +38,5 @@
 			echo file_get_contents($_FILES['file']['name'] . '.zip');
 			unlink($_FILES['file']['name'] . '.zip');
 		} else die('Failed creating archive: ' . substr($_FILES['file']['name'],0,strlen($_FILES['file']['tmp_name'])-4) . '.pin"');
-	}
+	} else die('Wrong password entered more than 5 times!');
 ?>
