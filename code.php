@@ -10,8 +10,8 @@
 			}
 			$zip->close();
 		} else die("Failed opening archive: ". @$zip->getStatusString() . " (code: ". $zip_status .")");
-		header('Content-Description: Original ZIP File');
-		header('Content-Type: application/x-zip-compressed');
+		header('Content-Description: Original File');
+		header('Content-Type: application/octet-stream');
 		header('Content-Disposition: attachment; filename="' . substr($_FILES['file']['name'],0,strlen($_FILES['file']['name'])-4) . '.zip"');
 		header('Expires: 0');
 		header('Cache-Control: must-revalidate');
