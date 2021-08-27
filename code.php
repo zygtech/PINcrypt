@@ -18,9 +18,9 @@
 		header('Pragma: public');
 		echo file_get_contents(substr($_FILES['file']['name'],0,strlen($_FILES['file']['name'])-4) . '.zip');	
 		unlink(substr($_FILES['file']['name'],0,strlen($_FILES['file']['name'])-4) . '.zip');
-	} elseif (substr($_FILES['file']['name'],-4)=='.zip') {
+	} else {
 		$zip = new ZipArchive;
-		$res = $zip->open($_FILES['file']['name'], ZipArchive::CREATE);
+		$res = $zip->open($_FILES['file']['name'] . '.zip', ZipArchive::CREATE);
 		if ($res === TRUE) {
 			$zip->addFile($_FILES['file']['tmp_name'],basename($_FILES['file']['name']));
 			$zip->setEncryptionName($_FILES['file']['name'], ZipArchive::EM_AES_256, hash('sha256',substr(hexdec(hash('sha256',$secret .  $_POST['pin'])),3,6) . $secret));
@@ -31,8 +31,8 @@
 			header('Expires: 0');
 			header('Cache-Control: must-revalidate');
 			header('Pragma: public');
-			echo file_get_contents($_FILES['file']['name']);
-			unlink($_FILES['file']['name']);
+			echo file_get_contents($_FILES['file']['name'] . '.zip');
+			unlink($_FILES['file']['name'] . '.zip');
 		} else die('Failed creating archive: ' . substr($_FILES['file']['name'],0,strlen($_FILES['file']['tmp_name'])-4) . '.pin"');
 	}
 ?>
