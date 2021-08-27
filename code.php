@@ -7,17 +7,18 @@
 			if ($zip->setPassword(hash('sha256',$_POST['pin'] . $secret))) {
 				if (!$zip->extractTo(__DIR__))
 					die("Extraction failed (wrong password?)");
+				$filename = $zip->getNameIndex(0);
 			}
 			$zip->close();
 		} else die("Failed opening archive: ". @$zip->getStatusString() . " (code: ". $zip_status .")");
 		header('Content-Description: Original File');
 		header('Content-Type: application/octet-stream');
-		header('Content-Disposition: attachment; filename="' . substr($_FILES['file']['name'],0,strlen($_FILES['file']['name'])-4) . '.zip"');
+		header('Content-Disposition: attachment; filename="' . $filename . '"');
 		header('Expires: 0');
 		header('Cache-Control: must-revalidate');
 		header('Pragma: public');
-		echo file_get_contents(substr($_FILES['file']['name'],0,strlen($_FILES['file']['name'])-4) . '.zip');	
-		unlink(substr($_FILES['file']['name'],0,strlen($_FILES['file']['name'])-4) . '.zip');
+		echo file_get_contents($filename);	
+		unlink($filename);
 	} else {
 		$zip = new ZipArchive;
 		$res = $zip->open($_FILES['file']['name'] . '.zip', ZipArchive::CREATE);
