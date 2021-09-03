@@ -1,4 +1,4 @@
 # PINcrypt
 ## Small tool for PINcrypting
 
-https://zygtech.pl/PINcrypt
+Test link: https://zygtech.pl/PINcrypt
